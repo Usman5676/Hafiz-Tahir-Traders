@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const app = express();
 
 // 🔐 Secret Key
-const SECRET_KEY = "mysecret123";
+const SECRET_KEY = process.env.JWT_SECRET || "mysecret123";
 
 // Fix CORS
 app.use(cors());
@@ -395,6 +395,10 @@ app.get("/api/reports/sales/csv", verifyToken, checkRole(["admin", "manager"]), 
 });
 
 // ================= SERVER =================
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(5000, () => {
+    console.log("Server running on port 5000");
+  });
+}
+
+module.exports = app;
