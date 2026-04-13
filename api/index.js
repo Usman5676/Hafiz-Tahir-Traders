@@ -1,8 +1,18 @@
+<<<<<<< HEAD
+=======
+require("dotenv").config();
+>>>>>>> c99f2aa (gg)
 const express = require("express");
 const cors = require("cors");
 const db = require("./database");
 const jwt = require("jsonwebtoken");
 
+<<<<<<< HEAD
+=======
+const twilioRoutes = require("./routes/twilioRoutes");
+const initCronJobs = require("./cron/cronJobs");
+
+>>>>>>> c99f2aa (gg)
 const app = express();
 
 // 🔐 Secret Key
@@ -394,6 +404,15 @@ app.get("/api/reports/sales/csv", verifyToken, checkRole(["admin", "manager"]), 
   });
 });
 
+<<<<<<< HEAD
+=======
+// Mount Twilio Routes
+app.use("/api", twilioRoutes);
+
+// Initialize Background Cron Jobs
+initCronJobs();
+
+>>>>>>> c99f2aa (gg)
 // ================= SERVER =================
 if (process.env.NODE_ENV !== 'production') {
   app.listen(5000, () => {
