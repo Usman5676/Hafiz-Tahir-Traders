@@ -12,29 +12,18 @@ const app = express();
 // 🔐 Secret Key
 const SECRET_KEY = process.env.JWT_SECRET || "mysecret123";
 
+// ================= CORS =================
 const corsOptions = {
   origin: "https://hafiz-tahir-traders-one.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: false
+  credentials: false,
 };
-
 app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://hafiz-tahir-traders-one.vercel.app");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
+app.options(/.*/, cors(corsOptions)); // Handle all preflight requests
 
 app.use(express.json());
+
 
 // ================= ROOT =================
 app.get("/", (req, res) => {

@@ -2,19 +2,12 @@ const mysql = require("mysql2/promise");
 require("dotenv").config();
 
 const dbConfig = {
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "1234##",
-  database: process.env.DB_NAME || "inventory_system",
-  port: process.env.DB_PORT || 3307
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  port: process.env.MYSQLPORT || 3306,
 };
-
-if (process.env.DB_HOST && process.env.DB_HOST !== "localhost") {
-  dbConfig.ssl = {
-    minVersion: 'TLSv1.2',
-    rejectUnauthorized: true
-  };
-}
 
 async function runMigration() {
   let connection;
