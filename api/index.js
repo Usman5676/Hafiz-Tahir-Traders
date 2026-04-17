@@ -21,7 +21,7 @@ const corsOptions = {
 };
 
 // 1. Handle OPTIONS preflight FIRST — before any other middleware
-app.options("*", cors(corsOptions));
+app.options("/(.*)", cors(corsOptions));
 
 // 2. Apply CORS to all routes
 app.use(cors(corsOptions));
