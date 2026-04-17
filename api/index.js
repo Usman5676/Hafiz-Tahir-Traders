@@ -19,10 +19,16 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: false,
 };
-app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions)); // Handle all preflight requests
 
+// 1. Handle OPTIONS preflight FIRST — before any other middleware
+app.options("*", cors(corsOptions));
+
+// 2. Apply CORS to all routes
+app.use(cors(corsOptions));
+
+// 3. Parse JSON body
 app.use(express.json());
+
 
 
 // ================= ROOT =================
@@ -32,6 +38,9 @@ app.get("/", (req, res) => {
 
 // ================= JWT MIDDLEWARE =================
 function verifyToken(req, res, next) {
+  // Always pass OPTIONS preflight requests through — never block them with auth
+  if (req.method === "OPTIONS") return next();
+
   // Support token from headers OR query params (for browser testing)
   const authHeader = req.headers["authorization"];
   const queryToken = req.query.token;
