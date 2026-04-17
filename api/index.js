@@ -20,11 +20,11 @@ const corsOptions = {
   credentials: false,
 };
 
-// 1. Handle OPTIONS preflight FIRST — before any other middleware
-app.options("/(.*)", cors(corsOptions));
-
-// 2. Apply CORS to all routes
+// 1. Enable CORS for all routes
 app.use(cors(corsOptions));
+
+// 2. Handle preflight requests for all routes
+app.options(/.*/, cors(corsOptions));
 
 // 3. Parse JSON body
 app.use(express.json());
