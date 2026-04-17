@@ -558,7 +558,7 @@ app.get("/api/reports/sales/csv", verifyToken, checkRole(["admin", "manager"]), 
 app.use("/api", twilioRoutes);
 
 // Initialize Background Cron Jobs
-initCronJobs();
+// initCronJobs();
 
 // ================= SERVER =================
 const PORT = process.env.PORT || 8080;

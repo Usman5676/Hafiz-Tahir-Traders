@@ -33,19 +33,17 @@ function createConnection() {
   }
 
   console.log(`Attempting connection to DB Host: ${dbConfig.host}`);
-  
+
   db = mysql.createConnection(dbConfig);
 
   db.connect((err) => {
     if (err) {
       console.error("Database connection failed:", err.message);
-      // Retry after 5 seconds
-      setTimeout(createConnection, 5000);
-      return;
+      return; // no retry loop
     }
+
     console.log("✅ MySQL Connected Successfully to", dbConfig.host);
   });
-
   db.on("error", (err) => {
     console.error("MySQL runtime error:", err.code, err.message);
     if (
