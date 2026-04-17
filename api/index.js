@@ -97,37 +97,66 @@ const checkRole = (roles) => {
 
 // ================= LOGIN =================
 app.post("/api/login", (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const sql = "SELECT * FROM users WHERE email=? AND password=?";
+  const { email, password } = req.body;
 
-    db.query(sql, [email, password], (err, result) => {
-      if (err) {
-        console.error("Login DB Error:", err);
-        return res.status(500).json({ error: "Database error during login", details: err.message });
-      }
-
-      if (result && result.length > 0) {
-        const user = result[0];
-        const token = jwt.sign(
-          { id: user.id, role: user.role },
-          SECRET_KEY,
-          { expiresIn: "10h" }
-        );
-
-        res.json({
-          message: "Login Successful",
-          token,
-          user: { id: user.id, name: user.name, email: user.email, role: user.role }
-        });
-      } else {
-        res.status(401).json({ message: "Invalid Email or Password" });
-      }
-    });
-  } catch (err) {
-    console.error("Login Crash Prevention:", err);
-    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  // 1. Basic Validation
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
   }
+
+  // 2. Query execution with detailed error logging
+  const sql = "SELECT * FROM users WHERE email=? AND password=?";
+  
+  db.query(sql, [email, password], (err, result) => {
+    if (err) {
+      console.error("❌ Login Database Error:", {
+        code: err.code,
+        errno: err.errno,
+        sqlState: err.sqlState,
+        message: err.message
+      });
+
+      // Special handling for missing table
+      if (err.code === 'ER_NO_SUCH_TABLE') {
+        return res.status(500).json({ 
+          error: "Database Schema Error: 'users' table not found.",
+          details: "The database table 'users' does not exist. Please run setup-db or verify migrations."
+        });
+      }
+
+      // Special handling for missing columns
+      if (err.code === 'ER_BAD_FIELD_ERROR') {
+        return res.status(500).json({ 
+          error: "Database Schema Error: Missing expected columns in 'users' table.",
+          details: err.message 
+        });
+      }
+
+      return res.status(500).json({ 
+        error: "Database error during login", 
+        details: err.message,
+        code: err.code 
+      });
+    }
+
+    // 3. Success / Invalid handling
+    if (result && result.length > 0) {
+      const user = result[0];
+      const token = jwt.sign(
+        { id: user.id, role: user.role },
+        SECRET_KEY,
+        { expiresIn: "10h" }
+      );
+
+      res.json({
+        message: "Login Successful",
+        token,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role }
+      });
+    } else {
+      res.status(401).json({ message: "Invalid Email or Password" });
+    }
+  });
 });
 
 // ================= CATEGORY =================
