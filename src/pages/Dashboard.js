@@ -87,7 +87,7 @@ const Dashboard = () => {
     <div className="page-container">
       <header className="page-header">
         <div>
-          <h1 className="page-title">{t('storeOverview')}</h1>
+          <h1 className="page-title">{t('dashboard.storeOverview')}</h1>
         </div>
       </header>
 
@@ -103,28 +103,28 @@ const Dashboard = () => {
       ) : (
         <div className="stats-grid">
           <StatCard
-            title={t('totalProducts')}
+            title={t('dashboard.totalProducts')}
             value={stats.totalProducts}
             icon={<Package size={24} />}
             color="var(--accent-primary)"
             delay={0.1}
           />
           <StatCard
-            title={t('monthlySales')}
+            title={t('dashboard.monthlySales')}
             value={`Rs. ${stats.revenue.toLocaleString()}`}
             icon={<DollarSign size={24} />}
             color="var(--success)"
             delay={0.2}
           />
           <StatCard
-            title={t('lowStockAlerts')}
+            title={t('dashboard.lowStockAlerts')}
             value={stats.lowStock}
             icon={<AlertTriangle size={24} />}
             color="var(--danger)"
             delay={0.3}
           />
           <StatCard
-            title={t('recentOrders')}
+            title={t('dashboard.recentOrders')}
             value={stats.totalSales}
             icon={<TrendingUp size={24} />}
             color="#8b5cf6"
@@ -142,7 +142,7 @@ const Dashboard = () => {
           transition={{ delay: 0.5, duration: 0.4 }}
           className="chart-card glass"
         >
-          <h3 className="section-title">{t('salesTrend')}</h3>
+          <h3 className="section-title">{t('dashboard.salesTrend')}</h3>
           <div className="bar-chart">
             <div className="bar-chart-y-axis">
               {[...Array(5)].map((_, i) => {
@@ -161,10 +161,10 @@ const Dashboard = () => {
                     title={`Week ${index + 1}: Rs. ${val.toLocaleString()}`}
                   >
                     <span className="bar-tooltip">
-                      {t('sales')}: {val.toLocaleString()}
+                      {t('dashboard.sales')}: {val.toLocaleString()}
                     </span>
                   </motion.div>
-                  <span className="bar-label">{t('week')} {index + 1}</span>
+                  <span className="bar-label">{t('dashboard.week')} {index + 1}</span>
                 </div>
               ))}
             </div>
@@ -179,12 +179,12 @@ const Dashboard = () => {
           className="restock-card glass"
         >
           <div className="restock-header">
-            <h3 className="section-title">{t('itemsNeedingRestock')}</h3>
-            <span className="restock-count">{lowStockItems.length} {t('items')}</span>
+            <h3 className="section-title">{t('dashboard.itemsNeedingRestock')}</h3>
+            <span className="restock-count">{lowStockItems.length} {t('dashboard.items')}</span>
           </div>
           <div className="restock-list">
             {lowStockItems.length === 0 ? (
-              <p className="no-items">{t('allWellStocked')}</p>
+              <p className="no-items">{t('dashboard.allWellStocked')}</p>
             ) : (
               lowStockItems.map((item, i) => {
                 const qty = item.quantity !== undefined ? item.quantity : item.stock;

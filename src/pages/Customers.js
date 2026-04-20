@@ -103,13 +103,13 @@ const Customers = () => {
   };
 
   const columns = [
-    { header: t('id'), accessor: 'id', cell: (row) => row.id || row._id || '-' },
-    { header: t('name'), accessor: 'name' },
-    { header: t('email'), accessor: 'email', cell: (row) => row.email || '-' },
-    { header: t('phone'), accessor: 'phone', cell: (row) => row.phone || row.contact || '-' },
-    { header: t('address'), accessor: 'address', cell: (row) => row.address || '-' },
+    { header: t('products.id'), accessor: 'id', cell: (row) => row.id || row._id || '-' },
+    { header: t('customers.customerName'), accessor: 'name' },
+    { header: t('suppliers.email'), accessor: 'email', cell: (row) => row.email || '-' },
+    { header: t('customers.phone'), accessor: 'phone', cell: (row) => row.phone || row.contact || '-' },
+    { header: t('customers.address'), accessor: 'address', cell: (row) => row.address || '-' },
     {
-      header: t('actions'),
+      header: t('products.actions'),
       cell: (row) => (
         <div style={{ display: 'flex', gap: '8px' }}>
           <Button variant="secondary" size="sm" onClick={() => openModal(row)}>
@@ -127,11 +127,11 @@ const Customers = () => {
     <div className="page-container">
       <header className="page-header">
         <div>
-          <h1 className="page-title">{t('customers')}</h1>
-          <p className="page-subtitle">{t('manageCustomers')}</p>
+          <h1 className="page-title">{t('sidebar.customers')}</h1>
+          <p className="page-subtitle">{t('customers.manageCustomers')}</p>
         </div>
         <Button onClick={() => openModal()} className="glass">
-          <Plus size={20} /> {t('addCustomer')}
+          <Plus size={20} /> {t('customers.addCustomer')}
         </Button>
       </header>
 
@@ -159,34 +159,34 @@ const Customers = () => {
             >
               <Card>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                  <h3>{editingId ? t('editCustomer') : t('addNewCustomer')}</h3>
+                  <h3>{editingId ? t('customers.editCustomer') : t('customers.addNewCustomer')}</h3>
                   <button onClick={closeModal} className="icon-btn"><X size={20}/></button>
                 </div>
                 <form onSubmit={handleSubmit}>
                   <Input 
-                    label={t('customerName')} 
+                    label={t('customers.customerName')} 
                     value={formData.name} 
                     onChange={e => setFormData({...formData, name: e.target.value})} 
                   />
                   <Input 
                     type="email"
-                    label={t('emailAddress')} 
+                    label={t('systemUsers.emailAddress')} 
                     value={formData.email} 
                     onChange={e => setFormData({...formData, email: e.target.value})} 
                   />
                   <Input 
-                    label={t('phoneNumber')} 
+                    label={t('customers.phoneNumber')} 
                     value={formData.phone} 
                     onChange={e => setFormData({...formData, phone: e.target.value})} 
                   />
                   <Input 
-                    label={t('physicalAddress')} 
+                    label={t('customers.physicalAddress')} 
                     value={formData.address} 
                     onChange={e => setFormData({...formData, address: e.target.value})} 
                   />
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-                    <Button type="button" variant="secondary" onClick={closeModal}>{t('cancel')}</Button>
-                    <Button type="submit" isLoading={submitting}>{editingId ? t('update') : t('save')}</Button>
+                    <Button type="button" variant="secondary" onClick={closeModal}>{t('products.cancel')}</Button>
+                    <Button type="submit" isLoading={submitting}>{editingId ? t('products.update') : t('products.save')}</Button>
                   </div>
                 </form>
               </Card>

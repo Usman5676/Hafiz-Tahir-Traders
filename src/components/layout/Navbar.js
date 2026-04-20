@@ -76,7 +76,7 @@ const Navbar = () => {
           onClick={toggleLang}
           className="lang-toggle-btn"
         >
-          {t('viewInUrdu')}
+          {lang === 'en' ? 'English | اردو' : 'اردو | English'}
         </motion.button>
 
         <motion.button
@@ -115,16 +115,16 @@ const Navbar = () => {
                 <div className="notif-header">
                   <div className="notif-title">
                     <AlertTriangle size={18} />
-                    <span>{t('notifications')}</span>
+                    <span>{t('navbar.notifications')}</span>
                   </div>
                   {lowStockItems.length > 0 && (
-                    <span className="notif-new-badge">{lowStockItems.length} {t('newLabel')}</span>
+                    <span className="notif-new-badge">{lowStockItems.length} {t('navbar.newLabel')}</span>
                   )}
                 </div>
 
                 <div className="notif-list">
                   {lowStockItems.length === 0 ? (
-                    <div className="notif-empty">{t('noAlerts')}</div>
+                    <div className="notif-empty">{t('navbar.noAlerts')}</div>
                   ) : (
                     lowStockItems.map((item, i) => {
                       const qty = item.quantity !== undefined ? item.quantity : item.stock;
@@ -132,7 +132,7 @@ const Navbar = () => {
                         <div key={item.id || i} className="notif-item">
                           <span className="notif-item-name">{item.name || 'Unnamed'}</span>
                           <span className="notif-item-msg">
-                            {t('stockRunningLow')} <strong>{qty} {t('left')}</strong>
+                            {t('navbar.stockRunningLow')} <strong>{qty} {t('navbar.left')}</strong>
                           </span>
                         </div>
                       );
@@ -142,7 +142,7 @@ const Navbar = () => {
 
                 <button className="notif-sms-btn" onClick={handleSendAlert} disabled={sendingAlert} style={{ opacity: sendingAlert ? 0.7 : 1 }}>
                   <Send size={16} />
-                  {sendingAlert ? (t('sending') || 'Sending...') : t('sendSmsAlert')}
+                  {sendingAlert ? (t('navbar.sending') || 'Sending...') : t('navbar.sendSmsAlert')}
                 </button>
               </motion.div>
             )}

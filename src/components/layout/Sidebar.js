@@ -14,17 +14,17 @@ const Sidebar = () => {
   const { t } = useTranslation();
 
   const allNavItems = [
-    { name: t('dashboard'), path: '/', icon: <LayoutDashboard size={20} />, roles: ['admin', 'manager', 'cashier'] },
-    { name: t('products'), path: '/products', icon: <Package size={20} />, roles: ['admin', 'manager', 'cashier'] },
-    { name: t('salesBilling'), path: '/sales', icon: <ShoppingCart size={20} />, roles: ['admin', 'manager', 'cashier'] },
-    { name: t('purchases'), path: '/purchases', icon: <ClipboardList size={20} />, roles: ['admin', 'manager'] },
-    { name: t('suppliers'), path: '/suppliers', icon: <Truck size={20} />, roles: ['admin', 'manager'] },
-    { name: t('customers'), path: '/customers', icon: <Users size={20} />, roles: ['admin', 'manager', 'cashier'] },
+    { name: t('sidebar.dashboard'), path: '/', icon: <LayoutDashboard size={20} />, roles: ['admin', 'manager', 'cashier'] },
+    { name: t('sidebar.products'), path: '/products', icon: <Package size={20} />, roles: ['admin', 'manager', 'cashier'] },
+    { name: t('sidebar.salesBilling'), path: '/sales', icon: <ShoppingCart size={20} />, roles: ['admin', 'manager', 'cashier'] },
+    { name: t('sidebar.purchases'), path: '/purchases', icon: <ClipboardList size={20} />, roles: ['admin', 'manager'] },
+    { name: t('sidebar.suppliers'), path: '/suppliers', icon: <Truck size={20} />, roles: ['admin', 'manager'] },
+    { name: t('sidebar.customers'), path: '/customers', icon: <Users size={20} />, roles: ['admin', 'manager', 'cashier'] },
     { name: 'Khata / Ledger', path: '/ledger', icon: <FileText size={20} />, roles: ['admin', 'manager', 'cashier'] },
     { name: 'Collect Payment', path: '/collect-payment', icon: <DollarSign size={20} />, roles: ['admin', 'manager', 'cashier'] },
-    { name: t('lowStock'), path: '/low-stock', icon: <AlertTriangle size={20} />, roles: ['admin', 'manager'] },
-    { name: t('reports'), path: '/reports', icon: <FileText size={20} />, roles: ['admin', 'manager'] },
-    { name: t('systemUsers'), path: '/system-users', icon: <Shield size={20} />, roles: ['admin'] },
+    { name: t('sidebar.lowStock'), path: '/low-stock', icon: <AlertTriangle size={20} />, roles: ['admin', 'manager'] },
+    { name: t('sidebar.reports'), path: '/reports', icon: <FileText size={20} />, roles: ['admin', 'manager'] },
+    { name: t('sidebar.systemUsers'), path: '/system-users', icon: <Shield size={20} />, roles: ['admin'] },
   ];
 
   // Filter based on user role
@@ -36,9 +36,9 @@ const Sidebar = () => {
     <div className="sidebar">
       <div className="sidebar-header">
         <h2 className="brand-logo">
-          Hafiz Tahir <span className="accent">Traders</span>
+          {t('navbar.brand')}
         </h2>
-        <p className="brand-subtitle">{t('inventoryManagement')}</p>
+        <p className="brand-subtitle">{t('sidebar.inventoryManagement')}</p>
       </div>
 
       <nav className="sidebar-nav">
@@ -74,7 +74,7 @@ const Sidebar = () => {
 
       <div className="sidebar-footer">
         <div className="sidebar-user-info">
-          <span className="sidebar-user-label">{t('loggedInAs')}</span>
+          <span className="sidebar-user-label">{t('sidebar.loggedInAs')}</span>
           <span className="sidebar-user-name">
             {user?.name || 'User'} ({user?.role || 'role'})
           </span>
@@ -86,7 +86,7 @@ const Sidebar = () => {
           className="sidebar-logout-btn"
         >
           <LogOut size={18} />
-          {t('logout')}
+          {t('sidebar.logout')}
         </motion.button>
       </div>
     </div>
