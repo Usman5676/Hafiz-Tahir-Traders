@@ -610,6 +610,8 @@ const Products = () => {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
       {/* CSV Import Preview Modal */}
       <AnimatePresence>
         {isImportModalOpen && (
