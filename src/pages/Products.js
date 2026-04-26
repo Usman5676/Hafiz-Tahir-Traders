@@ -454,7 +454,7 @@ const Products = () => {
                     <X size={20}/>
                   </button>
                 </div>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <Input 
                     label="Product Name" 
                     placeholder="e.g. Cotton Shirt"
@@ -463,17 +463,15 @@ const Products = () => {
                     onChange={e => setFormData({...formData, name: e.target.value})} 
                   />
                   
-                  <div style={{ marginTop: '12px' }}>
-                    <Input 
-                      label="Size" 
-                      placeholder="e.g. 1L, 500ml, XL, Box"
-                      required
-                      value={formData.size} 
-                      onChange={e => setFormData({...formData, size: e.target.value})} 
-                    />
-                  </div>
+                  <Input 
+                    label="Size" 
+                    placeholder="e.g. 1L, 500ml, XL, Box"
+                    required
+                    value={formData.size} 
+                    onChange={e => setFormData({...formData, size: e.target.value})} 
+                  />
                   
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                     <Input 
                       type="number"
                       label="Buy Price (Rs.)" 
@@ -492,7 +490,7 @@ const Products = () => {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                     <Input 
                       type="number"
                       label="Stock Quantity" 

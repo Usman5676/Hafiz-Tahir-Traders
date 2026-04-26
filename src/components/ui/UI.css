@@ -182,5 +182,8 @@
 }
 .modal-content {
   width: 100%;
-  max-width: 500px;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: var(--radius);
 }
