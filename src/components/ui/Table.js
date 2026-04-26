@@ -1,14 +1,28 @@
 import React from 'react';
 import './UI.css';
 
-export const Table = ({ columns, data, className = '' }) => {
+export const Table = ({ columns, data, className = '', onSort, sortConfig }) => {
   return (
     <div className={`table-container ${className}`}>
       <table className="modern-table">
         <thead>
           <tr>
             {columns.map((col, index) => (
-              <th key={index}>{col.header}</th>
+              <th 
+                key={index} 
+                onClick={() => col.sortable && onSort && onSort(col.accessor)}
+                style={{ cursor: col.sortable ? 'pointer' : 'default' }}
+                className={col.sortable ? 'sortable-header' : ''}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {col.header}
+                  {col.sortable && sortConfig?.key === col.accessor && (
+                    <span className="sort-indicator">
+                      {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </div>
+              </th>
             ))}
           </tr>
         </thead>

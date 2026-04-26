@@ -141,6 +141,17 @@
 .modern-table tbody tr:last-child td {
   border-bottom: none;
 }
+.sortable-header:hover {
+  color: var(--text-primary);
+  background: rgba(0,0,0,0.05) !important;
+}
+.dark .sortable-header:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+.sort-indicator {
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+}
 .text-center { text-align: center; }
 .text-secondary { color: var(--text-secondary); }
 .py-4 { padding-top: 24px; padding-bottom: 24px; }

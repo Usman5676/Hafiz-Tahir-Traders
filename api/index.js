@@ -179,14 +179,15 @@ app.get("/api/categories", verifyToken, checkRole(["admin", "manager", "cashier"
 
 // ================= PRODUCTS =================
 app.post("/api/products", verifyToken, checkRole(["admin", "manager"]), (req, res) => {
-  const { name, category_id, supplier_id, price, sell_price, buy_price, size, quantity, stock } = req.body;
+  const { name, category_id, supplier_id, price, sell_price, buy_price, size, quantity, stock, min_stock } = req.body;
   const s_price = sell_price || price || 0;
   const b_price = buy_price || 0;
   const qty = stock !== undefined ? stock : (quantity !== undefined ? quantity : 0);
   const prod_size = size || 'N/A';
+  const m_stock = min_stock !== undefined ? min_stock : 10;
   
-  const sql = "INSERT INTO products (name, category_id, supplier_id, price, buy_price, size, stock, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  db.query(sql, [name, category_id || null, supplier_id || null, s_price, b_price, prod_size, qty, qty], (err) => {
+  const sql = "INSERT INTO products (name, category_id, supplier_id, price, buy_price, size, stock, quantity, min_stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  db.query(sql, [name, category_id || null, supplier_id || null, s_price, b_price, prod_size, qty, qty, m_stock], (err) => {
     if (err) return res.status(500).send(err);
     res.send("Product Added Successfully");
   });
@@ -202,12 +203,12 @@ app.get("/api/products", verifyToken, checkRole(["admin", "manager", "cashier"])
 
 // Update Product
 app.put("/api/products/:id", verifyToken, checkRole(["admin", "manager"]), (req, res) => {
-  const { name, price, sell_price, buy_price, size, stock, quantity, category_id, supplier_id } = req.body;
+  const { name, price, sell_price, buy_price, size, stock, quantity, category_id, supplier_id, min_stock } = req.body;
   const s_price = sell_price || price;
   const qty = stock !== undefined ? stock : quantity;
   
-  const sql = "UPDATE products SET name=?, price=?, buy_price=?, size=?, stock=?, quantity=?, category_id=?, supplier_id=? WHERE id=?";
-  db.query(sql, [name, s_price, buy_price, size, qty, qty, category_id || null, supplier_id || null, req.params.id], (err, result) => {
+  const sql = "UPDATE products SET name=?, price=?, buy_price=?, size=?, stock=?, quantity=?, category_id=?, supplier_id=?, min_stock=? WHERE id=?";
+  db.query(sql, [name, s_price, buy_price, size, qty, qty, category_id || null, supplier_id || null, min_stock || 10, req.params.id], (err, result) => {
     if (err) return res.status(500).send(err);
     if (result.affectedRows === 0) return res.status(404).json({ message: "Product not found" });
     res.json({ message: "Product Updated Successfully" });

@@ -25,16 +25,17 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSize, setFilterSize] = useState('All');
-  const [sortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ 
     name: '', 
-    size: 'M', 
+    size: '', 
     buy_price: '', 
     sell_price: '', 
-    stock: '' 
+    stock: '',
+    min_stock: 10
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -58,7 +59,7 @@ const Products = () => {
   const stats = useMemo(() => {
     const totalInventoryValue = products.reduce((sum, p) => sum + (p.sell_price * p.stock), 0);
     const totalPotentialProfit = products.reduce((sum, p) => sum + ((p.sell_price - p.buy_price) * p.stock), 0);
-    const lowStockCount = products.filter(p => p.stock < 10).length;
+    const lowStockCount = products.filter(p => p.stock <= (p.min_stock || 10)).length;
     
     return {
       totalValue: totalInventoryValue,
@@ -81,13 +82,20 @@ const Products = () => {
 
     if (sortConfig.key) {
       result.sort((a, b) => {
-        let valA = a[sortConfig.key];
-        let valB = b[sortConfig.key];
+        let valA, valB;
         
-        // Handle nested or calculated fields if needed
         if (sortConfig.key === 'profit') {
           valA = a.sell_price - a.buy_price;
           valB = b.sell_price - b.buy_price;
+        } else if (sortConfig.key === 'total_profit') {
+          valA = (a.sell_price - a.buy_price) * a.stock;
+          valB = (b.sell_price - b.buy_price) * b.stock;
+        } else if (sortConfig.key === 'status') {
+          valA = a.stock <= (a.min_stock || 10) ? 0 : 1;
+          valB = b.stock <= (b.min_stock || 10) ? 0 : 1;
+        } else {
+          valA = a[sortConfig.key];
+          valB = b[sortConfig.key];
         }
 
         if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -101,21 +109,28 @@ const Products = () => {
 
   const sizes = ['All', ...new Set(products.map(p => p.size).filter(Boolean))];
 
-
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
   const openModal = (product = null) => {
     if (product) {
       setEditingId(product.id || product._id);
       setFormData({ 
         name: product.name || '', 
-        size: product.size || 'M',
+        size: product.size || '',
         buy_price: product.buy_price || '', 
         sell_price: product.sell_price || product.price || '', 
-        stock: product.stock !== undefined ? product.stock : product.quantity || '' 
+        stock: product.stock !== undefined ? product.stock : product.quantity || '',
+        min_stock: product.min_stock !== undefined ? product.min_stock : 10
       });
     } else {
       setEditingId(null);
-      setFormData({ name: '', size: 'M', buy_price: '', sell_price: '', stock: '' });
+      setFormData({ name: '', size: '', buy_price: '', sell_price: '', stock: '', min_stock: 10 });
     }
     setIsModalOpen(true);
   };
@@ -129,7 +144,7 @@ const Products = () => {
     e.preventDefault();
     
     // Validation
-    if (!formData.name || !formData.buy_price || !formData.sell_price || formData.stock === '') {
+    if (!formData.name || !formData.buy_price || !formData.sell_price || formData.stock === '' || formData.min_stock === '') {
       toast.warning('Please fill all required fields');
       return;
     }
@@ -141,6 +156,11 @@ const Products = () => {
 
     if (Number(formData.stock) < 0) {
       toast.warning('Stock cannot be negative');
+      return;
+    }
+
+    if (Number(formData.min_stock) < 0) {
+      toast.warning('Low stock limit cannot be negative');
       return;
     }
 
@@ -228,21 +248,26 @@ const Products = () => {
       header: 'Stock', 
       accessor: 'stock', 
       sortable: true,
-      cell: (row) => (
-        <span style={{ 
-          color: row.stock < 10 ? 'var(--danger)' : 'inherit', 
-          fontWeight: row.stock < 10 ? 700 : 500,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}>
-          {row.stock}
-          {row.stock < 10 && <AlertTriangle size={14} />}
-        </span>
-      )
+      cell: (row) => {
+        const isLow = row.stock <= (row.min_stock || 10);
+        return (
+          <span style={{ 
+            color: isLow ? 'var(--danger)' : 'var(--success)', 
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            {row.stock}
+            {isLow && <AlertTriangle size={14} />}
+          </span>
+        );
+      }
     },
     {
       header: 'Profit/Loss',
+      accessor: 'total_profit',
+      sortable: true,
       cell: (row) => {
         const profit = row.sell_price - row.buy_price;
         const totalProfit = profit * row.stock;
@@ -250,6 +275,19 @@ const Products = () => {
           <div className={`profit-badge ${profit >= 0 ? 'positive' : 'negative'}`}>
             {profit >= 0 ? '+' : ''}Rs. {totalProfit.toLocaleString()}
           </div>
+        );
+      }
+    },
+    {
+      header: 'Status',
+      accessor: 'status',
+      sortable: true,
+      cell: (row) => {
+        const isLow = row.stock <= (row.min_stock || 10);
+        return (
+          <span className={`status-badge ${isLow ? 'low' : 'ok'}`}>
+            {isLow ? 'Low Stock' : 'In Stock'}
+          </span>
         );
       }
     },
@@ -354,7 +392,12 @@ const Products = () => {
       ) : (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <Card style={{ padding: 0, overflow: 'hidden' }}>
-            <Table columns={columns} data={filteredProducts} />
+            <Table 
+              columns={columns} 
+              data={filteredProducts} 
+              onSort={requestSort}
+              sortConfig={sortConfig}
+            />
           </Card>
         </motion.div>
       )}
@@ -419,22 +462,13 @@ const Products = () => {
                   />
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '12px' }}>
-                    <div className="input-group">
-                      <label className="input-label" style={{ display: 'block', marginBottom: '8px', fontSize: '0.875rem', fontWeight: 500 }}>Size</label>
-                      <select 
-                        className="search-input"
-                        value={formData.size}
-                        onChange={e => setFormData({...formData, size: e.target.value})}
-                        style={{ paddingLeft: '12px' }}
-                      >
-                        <option value="S">Small (S)</option>
-                        <option value="M">Medium (M)</option>
-                        <option value="L">Large (L)</option>
-                        <option value="XL">Extra Large (XL)</option>
-                        <option value="XXL">XXL</option>
-                        <option value="Custom">Custom</option>
-                      </select>
-                    </div>
+                    <Input 
+                      label="Size" 
+                      placeholder="e.g. 1L, 500ml, XL"
+                      required
+                      value={formData.size} 
+                      onChange={e => setFormData({...formData, size: e.target.value})} 
+                    />
                     <Input 
                       type="number"
                       label="Stock Quantity" 
@@ -461,6 +495,17 @@ const Products = () => {
                       required
                       value={formData.sell_price} 
                       onChange={e => setFormData({...formData, sell_price: e.target.value})} 
+                    />
+                  </div>
+
+                  <div style={{ marginTop: '12px' }}>
+                    <Input 
+                      type="number"
+                      label="Low Stock Alert Limit" 
+                      placeholder="e.g. 10"
+                      required
+                      value={formData.min_stock} 
+                      onChange={e => setFormData({...formData, min_stock: e.target.value})} 
                     />
                   </div>
 
