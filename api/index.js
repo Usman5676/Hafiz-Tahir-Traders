@@ -193,6 +193,33 @@ app.post("/api/products", verifyToken, checkRole(["admin", "manager"]), (req, re
   });
 });
 
+// Bulk Import Products
+app.post("/api/products/bulk", verifyToken, checkRole(["admin", "manager"]), (req, res) => {
+  const products = req.body;
+  if (!Array.isArray(products) || products.length === 0) {
+    return res.status(400).json({ message: "Invalid data. Expected an array of products." });
+  }
+
+  const sql = "INSERT INTO products (name, price, buy_price, size, stock, quantity, min_stock) VALUES ?";
+  const values = products.map(p => [
+    p.name, 
+    p.sell_price || p.price || 0, 
+    p.buy_price || 0, 
+    p.size || 'N/A', 
+    p.stock || 0, 
+    p.stock || 0, 
+    p.min_stock || 10
+  ]);
+
+  db.query(sql, [values], (err, result) => {
+    if (err) {
+      console.error("Bulk Import Error:", err);
+      return res.status(500).json({ error: "Failed to import products", details: err.message });
+    }
+    res.json({ message: `${result.affectedRows} products imported successfully` });
+  });
+});
+
 // Allow cashier to see products
 app.get("/api/products", verifyToken, checkRole(["admin", "manager", "cashier"]), (req, res) => {
   db.query("SELECT *, price as sell_price FROM products", (err, result) => {

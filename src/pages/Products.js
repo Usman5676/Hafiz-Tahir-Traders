@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Papa from 'papaparse';
 import { 
   Plus, Edit2, Trash2, X, Search, 
   Download, TrendingUp, Package, AlertTriangle, 
@@ -38,6 +39,9 @@ const Products = () => {
     min_stock: 10
   });
   const [submitting, setSubmitting] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [importData, setImportData] = useState([]);
+  const [importErrors, setImportErrors] = useState([]);
 
   const fetchProducts = async () => {
     try {
@@ -194,6 +198,66 @@ const Products = () => {
     }
   };
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const validatedData = [];
+        const errors = [];
+
+        results.data.forEach((row, index) => {
+          const product = {
+            name: row['Product Name'] || row['name'],
+            size: row['Size'] || row['size'],
+            buy_price: parseFloat(row['Buy Price'] || row['buy_price']),
+            sell_price: parseFloat(row['Sell Price'] || row['sell_price']),
+            stock: parseInt(row['Stock Quantity'] || row['stock'] || 0),
+            min_stock: parseInt(row['Low Stock Alert Limit'] || row['min_stock'] || 10)
+          };
+
+          // Validation
+          if (!product.name) errors.push(`Row ${index + 1}: Name is required`);
+          if (isNaN(product.buy_price)) errors.push(`Row ${index + 1}: Invalid Buy Price`);
+          if (isNaN(product.sell_price)) errors.push(`Row ${index + 1}: Invalid Sell Price`);
+          if (product.buy_price > product.sell_price) errors.push(`Row ${index + 1}: Buy Price > Sell Price`);
+
+          validatedData.push(product);
+        });
+
+        setImportData(validatedData);
+        setImportErrors(errors);
+        setIsImportModalOpen(true);
+        e.target.value = ''; // Reset file input
+      },
+      error: (err) => {
+        toast.error("Failed to parse CSV: " + err.message);
+      }
+    });
+  };
+
+  const handleBulkImport = async () => {
+    if (importErrors.length > 0) {
+      toast.error("Please fix errors before importing");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await api.post('/products/bulk', importData);
+      toast.success('Bulk products imported successfully');
+      setIsImportModalOpen(false);
+      fetchProducts();
+    } catch (err) {
+      toast.error('Bulk import failed');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Name', 'Size', 'Buy Price', 'Sell Price', 'Stock', 'Profit Per Unit', 'Total Profit'];
     const rows = filteredProducts.map(p => [
@@ -330,6 +394,16 @@ const Products = () => {
           <p className="page-subtitle">Track, manage and analyze your products</p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
+          <input 
+            type="file" 
+            accept=".csv" 
+            id="csv-import" 
+            style={{ display: 'none' }} 
+            onChange={handleFileSelect}
+          />
+          <Button onClick={() => document.getElementById('csv-import').click()} variant="secondary" className="glass">
+            <Plus size={20} /> Import CSV
+          </Button>
           <Button onClick={exportToCSV} variant="secondary" className="glass">
             <Download size={20} /> Export CSV
           </Button>
@@ -532,6 +606,86 @@ const Products = () => {
                     </Button>
                   </div>
                 </form>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      {/* CSV Import Preview Modal */}
+      <AnimatePresence>
+        {isImportModalOpen && (
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 1100 }}
+          >
+            <motion.div 
+              className="modal-content"
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              style={{ maxWidth: '800px', width: '95%' }}
+            >
+              <Card style={{ padding: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Plus size={24} style={{ color: 'var(--accent-primary)' }}/>
+                    CSV Import Preview ({importData.length} Products)
+                  </h3>
+                  <button onClick={() => setIsImportModalOpen(false)} className="icon-btn" style={{ padding: '8px', borderRadius: '50%', background: 'var(--bg-secondary)' }}>
+                    <X size={20}/>
+                  </button>
+                </div>
+
+                {importErrors.length > 0 && (
+                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '16px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.9rem' }}>
+                    <strong>Errors found:</strong>
+                    <ul style={{ marginTop: '8px', maxHeight: '100px', overflowY: 'auto' }}>
+                      {importErrors.map((err, i) => <li key={i}>{err}</li>)}
+                    </ul>
+                  </div>
+                )}
+
+                <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+                  <table className="modern-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Size</th>
+                        <th>Buy</th>
+                        <th>Sell</th>
+                        <th>Stock</th>
+                        <th>Profit/Unit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {importData.map((row, i) => (
+                        <tr key={i}>
+                          <td>{row.name}</td>
+                          <td>{row.size}</td>
+                          <td>{row.buy_price}</td>
+                          <td>{row.sell_price}</td>
+                          <td>{row.stock}</td>
+                          <td style={{ color: row.sell_price - row.buy_price >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                            {(row.sell_price - row.buy_price).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '32px' }}>
+                  <Button type="button" variant="secondary" onClick={() => setIsImportModalOpen(false)}>Cancel</Button>
+                  <Button 
+                    onClick={handleBulkImport} 
+                    isLoading={submitting}
+                    disabled={importErrors.length > 0}
+                  >
+                    Confirm Import
+                  </Button>
+                </div>
               </Card>
             </motion.div>
           </motion.div>
