@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Papa from 'papaparse';
 import { 
   Plus, Edit2, Trash2, X, Search, 
   Download, TrendingUp, Package, AlertTriangle, 
@@ -202,41 +201,75 @@ const Products = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const validatedData = [];
-        const errors = [];
-
-        results.data.forEach((row, index) => {
-          const product = {
-            name: row['Product Name'] || row['name'],
-            size: row['Size'] || row['size'],
-            buy_price: parseFloat(row['Buy Price'] || row['buy_price']),
-            sell_price: parseFloat(row['Sell Price'] || row['sell_price']),
-            stock: parseInt(row['Stock Quantity'] || row['stock'] || 0),
-            min_stock: parseInt(row['Low Stock Alert Limit'] || row['min_stock'] || 10)
-          };
-
-          // Validation
-          if (!product.name) errors.push(`Row ${index + 1}: Name is required`);
-          if (isNaN(product.buy_price)) errors.push(`Row ${index + 1}: Invalid Buy Price`);
-          if (isNaN(product.sell_price)) errors.push(`Row ${index + 1}: Invalid Sell Price`);
-          if (product.buy_price > product.sell_price) errors.push(`Row ${index + 1}: Buy Price > Sell Price`);
-
-          validatedData.push(product);
-        });
-
-        setImportData(validatedData);
-        setImportErrors(errors);
-        setIsImportModalOpen(true);
-        e.target.value = ''; // Reset file input
-      },
-      error: (err) => {
-        toast.error("Failed to parse CSV: " + err.message);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      
+      if (lines.length < 2) {
+        toast.error("CSV file is empty or missing headers");
+        return;
       }
-    });
+
+      // Simple CSV parser that handles quotes
+      const parseCSVLine = (line) => {
+        const result = [];
+        let cur = '';
+        let inQuote = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuote = !inQuote;
+          } else if (char === ',' && !inQuote) {
+            result.push(cur.trim());
+            cur = '';
+          } else {
+            cur += char;
+          }
+        }
+        result.push(cur.trim());
+        return result.map(v => v.replace(/^"|"$/g, ''));
+      };
+
+      const headers = parseCSVLine(lines[0]);
+      const data = lines.slice(1).map(line => parseCSVLine(line));
+
+      const validatedData = [];
+      const errors = [];
+
+      data.forEach((rowValues, index) => {
+        const row = {};
+        headers.forEach((h, i) => row[h] = rowValues[i]);
+
+        const product = {
+          name: row['Product Name'] || row['name'] || row['Name'],
+          size: row['Size'] || row['size'] || '',
+          buy_price: parseFloat(row['Buy Price'] || row['buy_price'] || 0),
+          sell_price: parseFloat(row['Sell Price'] || row['sell_price'] || 0),
+          stock: parseInt(row['Stock Quantity'] || row['stock'] || 0),
+          min_stock: parseInt(row['Low Stock Alert Limit'] || row['min_stock'] || 10)
+        };
+
+        // Validation
+        if (!product.name) errors.push(`Row ${index + 1}: Name is required`);
+        if (isNaN(product.buy_price)) errors.push(`Row ${index + 1}: Invalid Buy Price`);
+        if (isNaN(product.sell_price)) errors.push(`Row ${index + 1}: Invalid Sell Price`);
+        if (product.buy_price > product.sell_price) errors.push(`Row ${index + 1}: Buy Price > Sell Price`);
+
+        validatedData.push(product);
+      });
+
+      setImportData(validatedData);
+      setImportErrors(errors);
+      setIsImportModalOpen(true);
+      e.target.value = ''; // Reset file input
+    };
+
+    reader.onerror = () => {
+      toast.error("Failed to read file");
+    };
+
+    reader.readAsText(file);
   };
 
   const handleBulkImport = async () => {
