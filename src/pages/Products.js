@@ -244,17 +244,28 @@ const Products = () => {
         const product = {
           name: row['Product Name'] || row['name'] || row['Name'],
           size: row['Size'] || row['size'] || '',
-          buy_price: parseFloat(row['Buy Price'] || row['buy_price'] || 0),
-          sell_price: parseFloat(row['Sell Price'] || row['sell_price'] || 0),
-          stock: parseInt(row['Stock Quantity'] || row['stock'] || 0),
-          lowStockLimit: parseInt(row['Low Stock Alert Limit'] || row['low_stock_limit'] || row['min_stock'] || 10)
+          // Accept camelCase for bulk endpoint
+          buyPrice:  parseFloat(row['Buy Price']  || row['buy_price']  || row['BuyPrice']  || 0),
+          sellPrice: parseFloat(row['Sell Price'] || row['sell_price'] || row['SellPrice'] || 0),
+          // Accept every common column name for Stock
+          stock: parseInt(
+            row['Stock'] || row['stock'] ||
+            row['Stock Quantity'] || row['Quantity'] ||
+            row['quantity'] || row['qty'] || 0,
+            10
+          ),
+          lowStockLimit: parseInt(
+            row['Low Stock Alert Limit'] || row['LowStockLimit'] ||
+            row['low_stock_limit'] || row['min_stock'] || 10,
+            10
+          )
         };
 
         // Validation
-        if (!product.name) errors.push(`Row ${index + 1}: Name is required`);
-        if (isNaN(product.buy_price)) errors.push(`Row ${index + 1}: Invalid Buy Price`);
-        if (isNaN(product.sell_price)) errors.push(`Row ${index + 1}: Invalid Sell Price`);
-        if (product.buy_price > product.sell_price) errors.push(`Row ${index + 1}: Buy Price > Sell Price`);
+        if (!product.name)                      errors.push(`Row ${index + 1}: Name is required`);
+        if (isNaN(product.buyPrice))            errors.push(`Row ${index + 1}: Invalid Buy Price`);
+        if (isNaN(product.sellPrice))           errors.push(`Row ${index + 1}: Invalid Sell Price`);
+        if (product.buyPrice > product.sellPrice) errors.push(`Row ${index + 1}: Buy Price > Sell Price`);
 
         validatedData.push(product);
       });
@@ -403,16 +414,16 @@ const Products = () => {
     }
   ];
 
-  // Chart Data
+  // Chart Data — show top 8 products by total profit (or unit profit if stock is zero)
   const chartData = useMemo(() => {
     return products
-      .filter(p => p.sell_price - p.buy_price > 0)
+      .filter(p => (p.sell_price - p.buy_price) > 0)
       .map(p => ({
-        name: p.name,
-        profit: (p.sell_price - p.buy_price) * p.stock,
+        name: p.name.length > 12 ? p.name.slice(0, 12) + '…' : p.name,
+        profit: (p.sell_price - p.buy_price) * (p.stock || 0),
         unitProfit: p.sell_price - p.buy_price
       }))
-      .sort((a, b) => b.profit - a.profit)
+      .sort((a, b) => b.profit - a.profit || b.unitProfit - a.unitProfit)
       .slice(0, 8);
   }, [products]);
 
@@ -515,17 +526,23 @@ const Products = () => {
           <h2 className="analytics-title">Top Profit Performers</h2>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
-              <BarChart data={chartData}>
+              <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
-                <Tooltip 
-                  contentStyle={{ background: 'var(--card-bg)', border: 'none', borderRadius: '8px', boxShadow: 'var(--shadow)' }}
-                  formatter={(value) => [`Rs. ${value.toLocaleString()}`, 'Total Profit']}
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} tickFormatter={v => `${v.toLocaleString()}`} />
+                <Tooltip
+                  contentStyle={{ background: '#1e1e2e', border: 'none', borderRadius: '8px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', color: '#fff' }}
+                  formatter={(value, name) => [
+                    `Rs. ${Number(value).toLocaleString()}`,
+                    name === 'profit' ? 'Total Profit' : 'Unit Profit'
+                  ]}
                 />
-                <Bar dataKey="profit" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="profit" name="profit" radius={[6, 6, 0, 0]}>
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? 'var(--primary)' : '#818cf8'} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={['#6366f1','#8b5cf6','#a78bfa','#818cf8','#4f46e5','#7c3aed','#c4b5fd','#5b21b6'][index % 8]}
+                    />
                   ))}
                 </Bar>
               </BarChart>

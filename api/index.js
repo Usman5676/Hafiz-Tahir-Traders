@@ -231,21 +231,28 @@ app.post("/api/products/bulk", verifyToken, checkRole(["admin", "manager"]), (re
   }
 
   const sql = "INSERT INTO products (name, size, buy_price, sell_price, stock, low_stock_limit) VALUES ?";
-  const values = products.map(p => [
-    p.name, 
-    p.size || 'N/A', 
-    p.buy_price || 0, 
-    p.sell_price || p.price || 0, 
-    p.stock || 0, 
-    p.low_stock_limit || p.min_stock || 10
-  ]);
+  const values = products.map(p => {
+    // Accept both camelCase (new CSV parser) and snake_case (legacy)
+    const buyPrice   = Number(p.buyPrice  ?? p.buy_price  ?? 0);
+    const sellPrice  = Number(p.sellPrice ?? p.sell_price ?? p.price ?? 0);
+    const stock      = Number(p.stock ?? 0);
+    const lowLimit   = Number(p.lowStockLimit ?? p.low_stock_limit ?? p.min_stock ?? 10);
+    return [
+      (p.name || '').trim(),
+      (p.size || 'N/A').trim(),
+      isNaN(buyPrice)  ? 0 : buyPrice,
+      isNaN(sellPrice) ? 0 : sellPrice,
+      isNaN(stock)     ? 0 : stock,
+      isNaN(lowLimit)  ? 10 : lowLimit
+    ];
+  });
 
   db.query(sql, [values], (err, result) => {
     if (err) {
-      console.error("Bulk Import Error:", err);
+      console.error("❌ Bulk Import Error:", err);
       return res.status(500).json({ error: "Failed to import products", details: err.message });
     }
-    res.json({ message: `${result.affectedRows} products imported successfully` });
+    res.status(201).json({ message: `${result.affectedRows} products imported successfully` });
   });
 });
 
