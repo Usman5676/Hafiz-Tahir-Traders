@@ -32,10 +32,10 @@ const Products = () => {
   const [formData, setFormData] = useState({ 
     name: '', 
     size: '', 
-    buy_price: '', 
-    sell_price: '', 
+    buyPrice: '', 
+    sellPrice: '', 
     stock: '',
-    min_stock: 10
+    lowStockLimit: 10
   });
   const [submitting, setSubmitting] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -62,7 +62,7 @@ const Products = () => {
   const stats = useMemo(() => {
     const totalInventoryValue = products.reduce((sum, p) => sum + (p.sell_price * p.stock), 0);
     const totalPotentialProfit = products.reduce((sum, p) => sum + ((p.sell_price - p.buy_price) * p.stock), 0);
-    const lowStockCount = products.filter(p => p.stock <= (p.min_stock || 10)).length;
+    const lowStockCount = products.filter(p => p.stock <= (p.low_stock_limit || 10)).length;
     
     return {
       totalValue: totalInventoryValue,
@@ -94,8 +94,8 @@ const Products = () => {
           valA = (a.sell_price - a.buy_price) * a.stock;
           valB = (b.sell_price - b.buy_price) * b.stock;
         } else if (sortConfig.key === 'status') {
-          valA = a.stock <= (a.min_stock || 10) ? 0 : 1;
-          valB = b.stock <= (b.min_stock || 10) ? 0 : 1;
+          valA = a.stock <= (a.low_stock_limit || 10) ? 0 : 1;
+          valB = b.stock <= (b.low_stock_limit || 10) ? 0 : 1;
         } else {
           valA = a[sortConfig.key];
           valB = b[sortConfig.key];
@@ -126,14 +126,14 @@ const Products = () => {
       setFormData({ 
         name: product.name || '', 
         size: product.size || '',
-        buy_price: product.buy_price || '', 
-        sell_price: product.sell_price || product.price || '', 
+        buyPrice: product.buy_price || '', 
+        sellPrice: product.sell_price || product.price || '', 
         stock: product.stock !== undefined ? product.stock : product.quantity || '',
-        min_stock: product.min_stock !== undefined ? product.min_stock : 10
+        lowStockLimit: product.low_stock_limit !== undefined ? product.low_stock_limit : 10
       });
     } else {
       setEditingId(null);
-      setFormData({ name: '', size: '', buy_price: '', sell_price: '', stock: '', min_stock: 10 });
+      setFormData({ name: '', size: '', buyPrice: '', sellPrice: '', stock: '', lowStockLimit: 10 });
     }
     setIsModalOpen(true);
   };
@@ -147,12 +147,12 @@ const Products = () => {
     e.preventDefault();
     
     // Validation
-    if (!formData.name || !formData.buy_price || !formData.sell_price || formData.stock === '' || formData.min_stock === '') {
+    if (!formData.name || !formData.buyPrice || !formData.sellPrice || formData.stock === '' || formData.lowStockLimit === '') {
       toast.warning('Please fill all required fields');
       return;
     }
 
-    if (Number(formData.buy_price) > Number(formData.sell_price)) {
+    if (Number(formData.buyPrice) > Number(formData.sellPrice)) {
       toast.warning('Buy Price cannot be greater than Sell Price');
       return;
     }
@@ -162,7 +162,7 @@ const Products = () => {
       return;
     }
 
-    if (Number(formData.min_stock) < 0) {
+    if (Number(formData.lowStockLimit) < 0) {
       toast.warning('Low stock limit cannot be negative');
       return;
     }
@@ -247,7 +247,7 @@ const Products = () => {
           buy_price: parseFloat(row['Buy Price'] || row['buy_price'] || 0),
           sell_price: parseFloat(row['Sell Price'] || row['sell_price'] || 0),
           stock: parseInt(row['Stock Quantity'] || row['stock'] || 0),
-          min_stock: parseInt(row['Low Stock Alert Limit'] || row['min_stock'] || 10)
+          lowStockLimit: parseInt(row['Low Stock Alert Limit'] || row['low_stock_limit'] || row['min_stock'] || 10)
         };
 
         // Validation
@@ -346,7 +346,7 @@ const Products = () => {
       accessor: 'stock', 
       sortable: true,
       cell: (row) => {
-        const isLow = row.stock <= (row.min_stock || 10);
+        const isLow = row.stock <= (row.low_stock_limit || 10);
         return (
           <span style={{ 
             color: isLow ? 'var(--danger)' : 'var(--success)', 
@@ -380,7 +380,7 @@ const Products = () => {
       accessor: 'status',
       sortable: true,
       cell: (row) => {
-        const isLow = row.stock <= (row.min_stock || 10);
+        const isLow = row.stock <= (row.low_stock_limit || 10);
         return (
           <span className={`status-badge ${isLow ? 'low' : 'ok'}`}>
             {isLow ? 'Low Stock' : 'In Stock'}
@@ -416,7 +416,7 @@ const Products = () => {
       .slice(0, 8);
   }, [products]);
 
-  const currentProfit = (Number(formData.sell_price) || 0) - (Number(formData.buy_price) || 0);
+  const currentProfit = (Number(formData.sellPrice) || 0) - (Number(formData.buyPrice) || 0);
   const currentTotalProfit = currentProfit * (Number(formData.stock) || 0);
 
   return (
@@ -584,16 +584,16 @@ const Products = () => {
                       label="Buy Price (Rs.)" 
                       placeholder="0"
                       required
-                      value={formData.buy_price} 
-                      onChange={e => setFormData({...formData, buy_price: e.target.value})} 
+                      value={formData.buyPrice} 
+                      onChange={e => setFormData({...formData, buyPrice: e.target.value})} 
                     />
                     <Input 
                       type="number"
                       label="Sell Price (Rs.)" 
                       placeholder="0"
                       required
-                      value={formData.sell_price} 
-                      onChange={e => setFormData({...formData, sell_price: e.target.value})} 
+                      value={formData.sellPrice} 
+                      onChange={e => setFormData({...formData, sellPrice: e.target.value})} 
                     />
                   </div>
 
@@ -611,8 +611,8 @@ const Products = () => {
                       label="Low Stock Limit" 
                       placeholder="e.g. 10"
                       required
-                      value={formData.min_stock} 
-                      onChange={e => setFormData({...formData, min_stock: e.target.value})} 
+                      value={formData.lowStockLimit} 
+                      onChange={e => setFormData({...formData, lowStockLimit: e.target.value})} 
                     />
                   </div>
 
