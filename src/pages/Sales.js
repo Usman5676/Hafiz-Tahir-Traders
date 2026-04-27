@@ -134,7 +134,7 @@ const Sales = () => {
     setCart(cart.filter(item => (item.id || item._id) !== productId));
   };
 
-  const subtotal = cart.reduce((sum, item) => sum + ((item.price || 0) * item.cartQty), 0);
+  const subtotal = cart.reduce((sum, item) => sum + ((item.sell_price || 0) * item.cartQty), 0);
   const discountAmount = discountType === 'percentage' 
     ? (subtotal * (Number(discountValue) / 100)) 
     : Number(discountValue);
@@ -173,11 +173,14 @@ const Sales = () => {
       for (const item of cart) {
         const id = item.id || item._id;
         const currentStock = item.stock !== undefined ? item.stock : item.quantity;
-        const newStock = currentStock - item.cartQty;
+        const newStock = Math.max(0, currentStock - item.cartQty);
         await api.put(`/products/${id}`, {
-          ...item,
-          quantity: newStock,
-          stock: newStock
+          name: item.name,
+          size: item.size || 'N/A',
+          buyPrice: item.buy_price,
+          sellPrice: item.sell_price,
+          stock: newStock,
+          lowStockLimit: item.low_stock_limit || 10
         });
       }
 
@@ -253,7 +256,7 @@ const Sales = () => {
                     <tbody>
                       {filteredProducts.map(product => {
                         const stock = product.stock !== undefined ? product.stock : product.quantity;
-                        const price = product.price || 0;
+                        const price = product.sell_price || 0;
                         const isLowStock = stock <= 5 && stock > 0;
                         const isOutOfStock = stock <= 0;
 
@@ -266,6 +269,7 @@ const Sales = () => {
                             <td>
                               <div className="product-name-cell">
                                 <span className="product-name-text">{product.name}</span>
+                                {product.size && <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '6px' }}>({product.size})</span>}
                                 {isLowStock && <span className="badge badge-warning">Low Stock</span>}
                                 {isOutOfStock && <span className="badge badge-danger">Out of Stock</span>}
                               </div>
@@ -451,9 +455,9 @@ const Sales = () => {
           </div>
           {cart.map((item, idx) => (
             <div key={idx} className="print-item">
-              <span style={{flex: 2}}>{item.name}</span>
+              <span style={{flex: 2}}>{item.name} {item.size ? `(${item.size})` : ''}</span>
               <span style={{flex: 1, textAlign: 'center'}}>{item.cartQty}</span>
-              <span style={{flex: 1, textAlign: 'right'}}>{((item.price || 0) * item.cartQty).toLocaleString()}</span>
+              <span style={{flex: 1, textAlign: 'right'}}>{((item.sell_price || 0) * item.cartQty).toLocaleString()}</span>
             </div>
           ))}
         </div>

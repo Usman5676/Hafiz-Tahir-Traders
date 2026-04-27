@@ -4,7 +4,7 @@ import { X, Plus, Minus } from 'lucide-react';
 
 const OrderItemCard = ({ item, onIncrease, onDecrease, onRemove }) => {
   const stockAvailable = item.stock !== undefined ? item.stock : item.quantity;
-  const price = Number(item.price || 0);
+  const price = Number(item.sell_price || 0);
   const total = price * item.cartQty;
 
   return (

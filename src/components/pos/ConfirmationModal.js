@@ -43,7 +43,7 @@ const ConfirmationModal = ({
           {cart.map((item, i) => (
              <div key={i} className="mod-item-row">
                <span>- {item.name} x{item.cartQty}</span>
-               <span>= {(item.cartQty * (item.price || 0)).toLocaleString()}</span>
+               <span>= {(item.cartQty * (item.sell_price || 0)).toLocaleString()}</span>
              </div>
           ))}
         </div>
