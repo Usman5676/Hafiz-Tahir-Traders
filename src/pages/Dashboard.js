@@ -86,8 +86,8 @@ const Dashboard = () => {
           // Only include sales from the last 28 days
           if (daysAgo < 0 || daysAgo >= 28) return;
 
-          // Bucket: 0-6 days ago = Week 4, 7-13 = Week 3, 14-20 = Week 2, 21-27 = Week 1
-          const weekIdx = daysAgo < 7 ? 3 : daysAgo < 14 ? 2 : daysAgo < 21 ? 1 : 0;
+          // Bucket: 0-6 days ago = Week 1, 7-13 = Week 2, 14-20 = Week 3, 21-27 = Week 4
+          const weekIdx = daysAgo < 7 ? 0 : daysAgo < 14 ? 1 : daysAgo < 21 ? 2 : 3;
           weekSales[weekIdx] += Number(sale.total || sale.amount || 0);
         });
 
