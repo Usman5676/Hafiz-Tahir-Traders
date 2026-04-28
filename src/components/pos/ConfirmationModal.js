@@ -25,7 +25,7 @@ const ConfirmationModal = ({
   const remaining = paymentMethod === 'Credit' ? cartTotal : (paymentMethod === 'Partial' ? Math.max(0, cartTotal - paid) : 0);
 
   return (
-    <div className="pos-modal-overlay no-print">
+    <div className="pos-modal-overlay">
       <motion.div 
         className="pos-modal-content"
         initial={{ scale: 0.95, opacity: 0, y: 10 }}
