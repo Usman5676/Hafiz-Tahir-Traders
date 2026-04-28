@@ -865,139 +865,145 @@
 
 @media print {
   @page {
-    size: auto;
-    margin: 0mm;
+    size: 80mm auto;
+    margin: 0;
   }
   
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    overflow: visible !important;
+  body {
+    margin: 0;
+    padding: 0;
+    height: auto;
+    width: 80mm;
   }
 
-  /* Hide everything else */
-  body > *:not(#receipt) {
-    display: none !important;
+  body * {
+    visibility: hidden;
+    height: 0;
+    overflow: hidden;
+  }
+
+  #receipt, #receipt * {
+    visibility: visible;
+    height: auto;
+    overflow: visible;
   }
 
   #receipt {
     display: block !important;
-    position: relative;
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 80mm;
-    margin: 0 auto;
-    padding: 4mm 2mm;
+    padding: 2mm;
     font-family: 'Courier New', Courier, monospace;
     color: #000;
     background: #fff;
-    font-size: 8pt;
-    line-height: 1.1;
-    page-break-inside: avoid;
+    font-size: 9pt;
+    line-height: 1.2;
+    z-index: 9999;
   }
 
   .print-header {
     text-align: center;
-    margin-bottom: 2mm;
+    margin-bottom: 3mm;
     border-bottom: 0.5px dashed #000;
-    padding-bottom: 1mm;
+    padding-bottom: 2mm;
   }
 
   .print-header h2 {
-    margin: 0 0 0.5mm 0;
-    font-size: 10pt;
+    margin: 0 0 1mm 0;
+    font-size: 11pt;
     text-transform: uppercase;
     font-weight: bold;
   }
 
   .print-header p {
     margin: 0;
-    font-size: 7pt;
+    font-size: 8pt;
   }
 
   .print-details {
-    margin: 1.5mm 0;
-    font-size: 7pt;
+    margin: 2mm 0;
+    font-size: 8pt;
     border-bottom: 0.5px dashed #000;
-    padding-bottom: 1.5mm;
+    padding-bottom: 2mm;
   }
 
   .print-details div {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.2mm;
   }
 
   .print-items {
     width: 100%;
-    margin-bottom: 1.5mm;
+    margin-bottom: 2mm;
   }
 
   .print-item-header {
     display: flex;
     font-weight: bold;
     border-bottom: 0.5px solid #000;
-    margin-bottom: 1mm;
+    margin-bottom: 1.5mm;
     padding-bottom: 0.5mm;
-    font-size: 7pt;
+    font-size: 8pt;
     text-transform: uppercase;
   }
 
   .print-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.5mm;
-    font-size: 7pt;
+    margin-bottom: 1mm;
+    font-size: 8pt;
     align-items: flex-start;
-    page-break-inside: avoid;
   }
 
   .print-item span:first-child {
     flex: 2.5;
-    word-break: break-word;
-    padding-right: 1mm;
+    word-break: break-all;
+    padding-right: 2mm;
   }
 
   .print-item span:nth-child(2) {
-    flex: 0.8;
+    flex: 1;
     text-align: center;
   }
 
   .print-item span:last-child {
-    flex: 1.2;
+    flex: 1.5;
     text-align: right;
   }
 
   .print-total-section {
-    margin-top: 1.5mm;
+    margin-top: 2mm;
     border-top: 0.5px dashed #000;
-    padding-top: 1.5mm;
+    padding-top: 2mm;
   }
 
   .print-total-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.3mm;
-    font-size: 7pt;
+    margin-bottom: 0.5mm;
+    font-size: 8pt;
   }
 
   .print-grand-total {
-    font-size: 9pt;
+    font-size: 10pt;
     font-weight: bold;
     border-top: 0.5px solid #000;
-    margin-top: 1mm;
-    padding-top: 1mm;
+    margin-top: 1.5mm;
+    padding-top: 1.5mm;
   }
 
   .print-footer {
     text-align: center;
-    margin-top: 3mm;
-    font-size: 7pt;
-    padding-top: 1.5mm;
+    margin-top: 4mm;
+    font-size: 8pt;
+    padding-top: 2mm;
     border-top: 0.5px dashed #000;
   }
 
   .print-footer p {
-    margin: 0.5mm 0;
+    margin: 1mm 0;
   }
 
   .no-print {
