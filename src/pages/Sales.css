@@ -895,111 +895,57 @@
     background: #fff !important;
   }
 
-  /* Hide EVERYTHING by default */
+  /* Hide ALL UI elements */
   body * {
-    display: none !important;
+    visibility: hidden !important;
   }
 
-  /* Show ONLY the receipt and its specific parent containers in the tree */
-  #root, 
-  #root *, 
-  .app-container, 
-  .app-container *, 
-  .main-content, 
-  .main-content *, 
-  .page-content, 
-  .page-content *,
-  #receipt, 
-  #receipt * {
-    display: block !important;
+  /* Show ONLY the receipt and its children */
+  #receipt, #receipt * {
     visibility: visible !important;
   }
 
-  /* Re-hide specific UI elements that shouldn't be printed but are children of the shown parents */
-  .sidebar, 
-  .navbar, 
-  .pos-master-wrapper, 
-  .wizard-step-indicator,
-  .no-print {
-    display: none !important;
-  }
-
   #receipt {
-    position: static !important;
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
     width: 80mm !important;
-    padding: 4mm !important;
-    margin: 0 auto !important;
+    padding: 2mm !important;
+    margin: 0 !important;
     background: white !important;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 10pt;
-    color: #000;
-    line-height: 1.4;
-  }
-
-  .print-header {
-    text-align: center;
-    border-bottom: 1px dashed #000;
-    margin-bottom: 4mm;
-    padding-bottom: 2mm;
-  }
-
-  .print-header h2 {
-    margin: 0;
-    font-size: 14pt;
-  }
-
-  .print-details {
-    margin-bottom: 4mm;
     font-size: 9pt;
+    color: #000;
   }
 
-  .print-details div {
-    display: flex;
-    justify-content: space-between;
+  /* Ensure long bills continue to next pages */
+  #receipt {
+    position: static !important; /* Overriding absolute for multi-page flow */
+    float: none !important;
   }
 
-  .print-item-header {
-    display: flex;
-    font-weight: bold;
-    border-bottom: 1px solid #000;
-    padding-bottom: 1mm;
-    margin-bottom: 1mm;
+  .print-header,
+  .print-details,
+  .print-total-section,
+  .print-footer {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .print-items {
-    margin-bottom: 4mm;
+    display: block !important;
+    width: 100% !important;
+    break-inside: auto !important;
   }
 
   .print-item {
     display: flex !important;
-    margin-bottom: 1mm;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
-  .print-total-section {
-    border-top: 1px dashed #000;
-    padding-top: 2mm;
-    margin-bottom: 4mm;
-  }
-
-  .print-total-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1mm;
-  }
-
-  .print-grand-total {
-    font-weight: bold;
-    font-size: 11pt;
-    border-top: 1px solid #000;
-    margin-top: 1mm;
-    padding-top: 1mm;
-  }
-
-  .print-footer {
-    text-align: center;
-    font-size: 8pt;
-    margin-top: 6mm;
-    border-top: 1px dashed #000;
-    padding-top: 2mm;
+  .no-print {
+    display: none !important;
   }
 }

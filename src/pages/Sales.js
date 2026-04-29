@@ -209,17 +209,7 @@ const Sales = () => {
     if (cart.length === 0) {
       return;
     }
-    
-    // Create a temporary delay before state reset to ensure print dialog captures current DOM
     window.print();
-    
-    // We don't necessarily need a setTimeout here because window.print() is blocking,
-    // but in some browsers or reactive environments, it helps to let the event loop breathe.
-    setTimeout(() => {
-      setCart([]);
-      setCurrentStep(1);
-      fetchData();
-    }, 100);
   };
 
   if (loading) return <Loader />;
