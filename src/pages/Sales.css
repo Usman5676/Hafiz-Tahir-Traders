@@ -884,7 +884,7 @@
 
 @media print {
   @page {
-    size: portrait;
+    size: 80mm auto;
     margin: 0 !important;
   }
   
@@ -915,13 +915,13 @@
   #receipt {
     display: block !important;
     position: relative !important;
-    width: 58mm !important;
-    max-width: 58mm !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
     margin: 0 auto !important;
-    padding: 2mm !important;
+    padding: 2mm 4mm !important; /* Side padding for safety */
     background: white !important;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 8pt;
+    font-size: 9pt;
     color: #000;
     line-height: 1.2;
     overflow: hidden !important;
@@ -972,6 +972,7 @@
     align-items: flex-start;
     margin-bottom: 2px;
     width: 100% !important;
+    overflow: hidden !important;
   }
 
   .receipt-table-header {
