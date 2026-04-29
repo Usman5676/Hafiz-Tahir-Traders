@@ -908,14 +908,15 @@
   #receipt {
     display: block !important;
     position: static !important;
-    width: 80mm !important;
-    padding: 4mm !important;
+    width: 72mm !important; /* Slightly smaller than 80mm to avoid hardware margin cut-offs */
+    padding: 0 !important;
     margin: 0 auto !important;
     background: white !important;
     font-family: 'Courier New', Courier, monospace;
     font-size: 10pt;
     color: #000;
-    line-height: 1.4;
+    line-height: 1.2;
+    overflow: hidden;
   }
 
   .receipt-brand {
@@ -924,65 +925,74 @@
     text-align: center;
     margin: 0;
     padding: 0;
+    text-transform: uppercase;
   }
 
-  .receipt-subtitle {
-    font-size: 9pt;
+  .receipt-subtitle, .receipt-contact {
+    font-size: 8pt;
     text-align: center;
-    margin: 2px 0;
-  }
-
-  .receipt-contact {
-    font-size: 9pt;
-    text-align: center;
-    margin: 2px 0;
+    margin: 1px 0;
   }
 
   .receipt-divider {
     text-align: center;
-    margin: 5px 0;
+    margin: 4px 0;
     font-weight: bold;
     letter-spacing: -1px;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .receipt-info {
-    margin: 10px 0;
+    margin: 8px 0;
+    font-size: 9pt;
   }
 
   .receipt-row {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 2px;
   }
 
   .receipt-table-header {
     font-weight: bold;
-    border-bottom: 1px solid #000;
-    margin-bottom: 5px;
+    border-bottom: 1px dashed #000;
+    margin-bottom: 4px;
     padding-bottom: 2px;
+    font-size: 9pt;
   }
 
   .receipt-item {
     font-size: 9pt;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
+  }
+
+  .receipt-item span:first-child {
+    word-break: break-all;
+    padding-right: 5px;
   }
 
   .receipt-totals {
-    margin-top: 10px;
+    margin-top: 8px;
+    border-top: 1px dashed #000;
+    padding-top: 4px;
   }
 
   .receipt-grand-total {
-    font-size: 12pt;
+    font-size: 11pt;
     font-weight: 900;
-    margin-top: 5px;
-    padding-top: 5px;
-    border-top: 1px solid #000;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px double #000;
   }
 
   .receipt-footer {
     text-align: center;
-    margin-top: 20px;
-    font-size: 10pt;
+    margin-top: 15px;
+    font-size: 9pt;
+    border-top: 1px dashed #000;
+    padding-top: 10px;
   }
 
   .no-print {
