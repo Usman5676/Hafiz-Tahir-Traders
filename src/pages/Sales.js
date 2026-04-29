@@ -531,7 +531,7 @@ const Sales = () => {
 
         <div className="receipt-footer">
           <p>Thank You</p>
-          <p style={{fontSize: '7pt', marginTop: '5px'}}>Developed by Mani Digital</p>
+          <p style={{fontSize: '6pt', marginTop: '5px', opacity: 0.8}}>Developed by Mani Digital</p>
         </div>
       </div>
     </>
